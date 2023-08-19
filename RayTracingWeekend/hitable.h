@@ -12,6 +12,9 @@ public:
 	double t;
 	bool is_frontface;
 
+	int hit_count = 0;
+	color decay = vec3(1.);
+
 	void set_frontface_and_normal(const ray& r, const vec3& norm)
 	{
 		is_frontface = dot(r.direction(), norm) < 0;

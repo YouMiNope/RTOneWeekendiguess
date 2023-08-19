@@ -5,7 +5,7 @@ int main()
 {
 	// init
 	camera m_camera;
-	m_camera.img_width = 800;
+	m_camera.img_width = 400;
 	m_camera.aspect_ratio = 16. / 9.;
 	m_camera.initilize();
 

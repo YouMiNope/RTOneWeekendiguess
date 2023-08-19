@@ -19,7 +19,8 @@ public:
 	double foucus = 1.;
 
 	int img_width = 800;
-	int sample_count = 100;
+	size_t sample_count = 16;
+	size_t max_reflect = 8;
 
 	camera() { }
 
@@ -33,7 +34,7 @@ public:
 		{
 			for (size_t y = 0; y < img_height; ++y)
 			{
-				std::clog << std::format("\rRemaining Lines: {}       ", (sample_count - samp) * img_height - y) << std::flush;
+				std::clog << "\rRemaining Lines: " << ((sample_count - samp) * img_height - y) << " " << std::flush;
 				for (size_t x = 0; x < img_width; ++x)
 				{
 					ray scn_ray = screen_ray(x, y);
@@ -86,17 +87,28 @@ private:
 
 	color ray_color(const ray& r, const hitable& hitable_objects)
 	{
-		auto norm_dir = norm(r.direction());
-		auto alpha = (norm_dir.y() + 1) / 2;
-
 		hit_record m_hit_record;
-		bool hitted = hitable_objects.hit(r, interval(0, infinity), m_hit_record);
-		if (hitted)
+
+		ray active_ray = r;
+		for (size_t i_ray = 0; i_ray < max_reflect; i_ray++)
 		{
-			return color(m_hit_record.normal + vec3(1.)) / 2;
+			bool hitted = hitable_objects.hit(active_ray, interval(0, infinity), m_hit_record);
+			if (hitted)
+			{
+				active_ray = ray(m_hit_record.p, norm(m_hit_record.normal + vec3::random_sphere()));
+				m_hit_record.decay *= 0.5;
+				m_hit_record.hit_count += 1;
+			}
+			else
+			{
+				break;
+			}
 		}
 
-		return blend(color(0.02, 0.02, 0.3), color(0.5, 0.6, 0.65), alpha);
+		auto norm_dir = norm(active_ray.direction());
+		auto alpha = (norm_dir.y() + 1) / 2;
+
+		return blend(color(0.02, 0.02, 0.7), color(0.5, 0.6, 0.65), alpha) * m_hit_record.decay;
 	}
 
 	inline ray screen_ray(size_t x, size_t y) const

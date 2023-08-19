@@ -7,8 +7,9 @@
 add_executable (RayTracingWeekend "RayTracingWeekend.cpp" "RayTracingWeekend.h"  "vec3.h" "utils.h" "color.h" "sphere.h" "hitable_list.h" "interval.h" "camera.h" "window.h")
 
 
-target_link_libraries(RayTracingWeekend glfw3)
-target_link_libraries(RayTracingWeekend Opengl32)
+target_link_libraries(RayTracingWeekend glfw)
+target_link_libraries(RayTracingWeekend glew)
+target_link_libraries(RayTracingWeekend "-framework OpenGL")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET RayTracingWeekend PROPERTY CXX_STANDARD 20)

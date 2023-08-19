@@ -62,6 +62,13 @@ public:
 	{
 		return data[0] * data[0] + data[1] * data[1] + data[2] * data[2];
 	}
+
+	static vec3 random_sphere()
+	{
+		auto alpha = noise::uniform() * 2 * pi;
+		auto beta  = noise::uniform() * 2 * pi;
+		return vec3(cos(alpha) * cos(beta), sin(alpha), cos(alpha) * sin(beta));
+	}
 };
 
 using point3 = vec3;
