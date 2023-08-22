@@ -4,10 +4,12 @@
 #include "color.h"
 #include "hitable.h"
 #include "hitable_list.h"
+#include "buffer.h"
 
 #include <iostream>
 #include <format>
 #include <random>
+#include "material.h"
 
 class camera
 {
@@ -27,9 +29,8 @@ public:
 	double get_width() { return img_width; }
 	double get_height() { return img_height; }
 
-	void render(const hitable& world, pixbuf buffer)
+	void render(const hitable& world, pixbuf<double> buffer)
 	{
-		pixbuf _tmp_buf = buffer;
 		for (size_t samp = 0; samp < sample_count; samp++)
 		{
 			for (size_t y = 0; y < img_height; ++y)
@@ -40,19 +41,10 @@ public:
 					ray scn_ray = screen_ray(x, y);
 					color current_color = ray_color(scn_ray, world);
 
-					_tmp_buf = write_color(_tmp_buf, current_color, sample_count);
+					buffer.aggregate_color(current_color, sample_count);
 				}
 			}
-			_tmp_buf = buffer;
-		}
-		std::clog << "\rColor Antialiasing...       " << std::flush;
-		for (size_t y = 0; y < img_height; ++y)
-		{
-			for (size_t x = 0; x < img_width; ++x)
-			{
-				color color_noise(noise::uniform(), noise::uniform(), noise::uniform());
-				_tmp_buf = write_color(_tmp_buf, color_noise, 256);
-			}
+			buffer.reset();
 		}
 		std::clog << "\rDone                      " << std::endl;
 	}
@@ -88,16 +80,19 @@ private:
 	color ray_color(const ray& r, const hitable& hitable_objects)
 	{
 		hit_record m_hit_record;
-
 		ray active_ray = r;
+		vec3 decay(1.);
+
 		for (size_t i_ray = 0; i_ray < max_reflect; i_ray++)
 		{
-			bool hitted = hitable_objects.hit(active_ray, interval(0, infinity), m_hit_record);
+			bool hitted = hitable_objects.hit(active_ray, interval(0.0001, infinity), m_hit_record);
 			if (hitted)
 			{
-				active_ray = ray(m_hit_record.p, norm(m_hit_record.normal + vec3::random_sphere()));
-				m_hit_record.decay *= 0.5;
-				m_hit_record.hit_count += 1;
+				if (!m_hit_record.material->scatter(active_ray, m_hit_record, active_ray, decay)) {
+					decay = vec3(0);
+					break;
+				}
+				continue;
 			}
 			else
 			{
@@ -108,7 +103,7 @@ private:
 		auto norm_dir = norm(active_ray.direction());
 		auto alpha = (norm_dir.y() + 1) / 2;
 
-		return blend(color(0.02, 0.02, 0.7), color(0.5, 0.6, 0.65), alpha) * m_hit_record.decay;
+		return blend(color(0.6, 0.4, 0.5), color(0.02, 0.02, 0.3), alpha) * decay;
 	}
 
 	inline ray screen_ray(size_t x, size_t y) const

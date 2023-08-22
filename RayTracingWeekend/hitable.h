@@ -3,6 +3,10 @@
 #include "vec3.h"
 #include "ray.h"
 #include "interval.h"
+//#include "material.h"
+
+class hitable;
+class material;
 
 class hit_record
 {
@@ -12,8 +16,7 @@ public:
 	double t;
 	bool is_frontface;
 
-	int hit_count = 0;
-	color decay = vec3(1.);
+	std::shared_ptr<material> material;
 
 	void set_frontface_and_normal(const ray& r, const vec3& norm)
 	{

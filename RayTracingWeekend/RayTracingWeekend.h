@@ -16,3 +16,4 @@
 #include "interval.h"
 #include "camera.h"
 #include "window.h"
+#include "buffer.h"

@@ -1,7 +1,8 @@
-#pragma
+#pragma once
 
 #include "vec3.h"
 #include "hitable.h"
+#include "material.h"
 
 class sphere : public hitable
 {
@@ -9,8 +10,10 @@ private:
 	vec3 posit;
 	double radius;
 
+	std::shared_ptr<material> m_material;
+
 public:
-	sphere(const vec3& position, double radius) : posit(position), radius(radius) {}
+	sphere(const vec3& position, double radius, std::shared_ptr<material> matr) : posit(position), radius(radius), m_material(matr) {}
 
 	vec3 get_posit() const { return posit; }
 	double get_radius() const { return radius; }
@@ -41,6 +44,7 @@ public:
 		record.p = r.at(t);
 		auto normal = (record.p - posit) / radius;
 		record.set_frontface_and_normal(r, normal);
+		record.material = m_material;
 
 		return true;
 	}

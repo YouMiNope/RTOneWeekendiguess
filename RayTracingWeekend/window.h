@@ -1,16 +1,16 @@
 #pragma once
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <gl/GL.h>
+#if defined(_WIN32)
+  #include <GLFW/glfw3.h>
+  #include <gl/GL.h>
 #else
-#include <GL/glew.h>
+  #include <GL/glew.h>
+  #include <GLFW/glfw3.h>
 #endif
-
-#include <GLFW/glfw3.h>
 
 #include <iostream>
 
-#include "utils.h"
+#include "buffer.h"
 
 class window
 {
@@ -20,9 +20,13 @@ public:
 	int width;
 	int height;
 
-	pixbuf buffer;
+	pixbuf<double>& raw_buffer;
 
-	window(int width, int height, pixbuf buf) : width(width), height(height), buffer(buf)
+	window(int width, int height, pixbuf<double>& buf) :
+		width(width),
+		height(height),
+		raw_buffer(buf),
+		buffer(width, height, 3)
 	{
 		if (glfwInit() != GLFW_TRUE)
 		{
@@ -31,12 +35,11 @@ public:
 		create_window(width, height);
 	}
 
-	~window() 
-	{
+	~window() {
 		glfwTerminate();
 	}
 
-	void draw_loop()
+	void draw_loop(double(*post_proc_func)(double))
 	{
 		while (!glfwWindowShouldClose(m_window))
 		{
@@ -47,7 +50,8 @@ public:
 			}
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			glDrawPixels(width, height, GL_RGB, GL_FLOAT, (GLvoid*)buffer);
+			raw_buffer.render_to(buffer, post_proc_func);
+			glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)buffer.ptr());
 
 			glfwSwapBuffers(m_window);
 
@@ -56,6 +60,7 @@ public:
 	}
 
 private:
+	pixbuf<char8_t> buffer;
 
 	void create_window(int width, int height)
 	{
@@ -71,9 +76,11 @@ private:
 		}
 
 		glfwMakeContextCurrent(m_window);
+		glfwSwapInterval(1);
 
 		// OpenGL stuffs
 		glClearColor(0.2f, 0.3f, 0.35f, 1.0f);
 		glViewport(0, 0, width, height);
+		
 	}
 };

@@ -2,8 +2,6 @@
 #include <limits>
 #include <random>
 
-typedef float* pixbuf;
-
 const double pi = 3.1415926535897932384626;
 const double infinity = std::numeric_limits<double>::infinity();
 
