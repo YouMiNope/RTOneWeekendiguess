@@ -13,10 +13,7 @@ project ("RayTracingWeekend")
 
 # 包含子项目。
 add_subdirectory ("RayTracingWeekend")
-set(IMGUI_DIR "${PROJECT_SOURCE_DIR}/imgui/")
+# message("${PROJECT_SOURCE_DIR}/imgui")
 
 set(INCLUDE_DIR "$ENV{INCLUDE_DIR}" CACHE PATH "Custom Include Directory")
 set(LIBRARY_DIR "$ENV{LIBRARY_DIR}" CACHE PATH "Custom Library Directory")
-
-target_include_directories(RayTracingWeekend PRIVATE "${INCLUDE_DIR}")
-target_link_directories(RayTracingWeekend PRIVATE "${LIBRARY_DIR}")

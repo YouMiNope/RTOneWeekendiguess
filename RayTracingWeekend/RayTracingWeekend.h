@@ -7,6 +7,10 @@
 #include <thread>
 #include <random>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "utils.h"
 #include "color.h"
 #include "vec3.h"
