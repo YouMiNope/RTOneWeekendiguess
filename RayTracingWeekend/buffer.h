@@ -7,16 +7,26 @@ template <typename T>
 class pixbuf
 {
 public:
-	pixbuf() = delete;
-	pixbuf(size_t width, size_t height, size_t channle) {
-		size = width * height * channle;
-		buf_begin_ptr = (T*)malloc(size * sizeof(T));
-		buf_write_ptr = buf_begin_ptr;
+	size_t buf_write_ptr;
+
+	pixbuf() {}
+	pixbuf(size_t width, size_t height, size_t channel)
+		: width(width),
+		height(height),
+		channel(channel),
+		size(width * height * channel)
+	{
+		buf_begin_ptr = std::vector<T>(size, 0);
+		buf_write_ptr = 0;
 		clear();
 	}
 
-	T* ptr() {
-		return buf_begin_ptr;
+	~pixbuf() {
+		//free(buf_begin_ptr);
+	}
+
+	auto ptr() {
+		return &buf_begin_ptr[0];
 	}
 
 	void clear()
@@ -27,14 +37,14 @@ public:
 	}
 
 	void reset() {
-		buf_write_ptr = buf_begin_ptr;
+		buf_write_ptr = 0;
 	}
 
 	void aggregate_color(color _color, int sample_count)
 	{
-		*buf_write_ptr++ += _color[0] / sample_count;
-		*buf_write_ptr++ += _color[1] / sample_count;
-		*buf_write_ptr++ += _color[2] / sample_count;
+		buf_begin_ptr[buf_write_ptr++] += _color[0] / sample_count;
+		buf_begin_ptr[buf_write_ptr++] += _color[1] / sample_count;
+		buf_begin_ptr[buf_write_ptr++] += _color[2] / sample_count;
 	}
 
 	template <typename d_T>
@@ -47,9 +57,19 @@ public:
 		}
 	}
 
+	template <typename s_T>
+	void pixel_process_from(pixbuf<typename s_T>& src, double(process_func)(double))
+	{
+		buf_begin_ptr[buf_write_ptr++] = static_cast<T>(process_func(*(src.ptr() + src.buf_write_ptr - 3)) * 255);
+		buf_begin_ptr[buf_write_ptr++] = static_cast<T>(process_func(*(src.ptr() + src.buf_write_ptr - 2)) * 255);
+		buf_begin_ptr[buf_write_ptr++] = static_cast<T>(process_func(*(src.ptr() + src.buf_write_ptr - 1)) * 255);
+	}
+
 private:
+	size_t width;
+	size_t height;
+	size_t channel;
 	size_t size;
 
-	T* buf_begin_ptr;
-	T* buf_write_ptr;
+	std::vector<T> buf_begin_ptr;
 };

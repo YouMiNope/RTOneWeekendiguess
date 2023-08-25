@@ -3,7 +3,6 @@
 #include "utils.h"
 #include "color.h"
 #include "hitable.h"
-#include "hitable_list.h"
 #include "buffer.h"
 
 #include <iostream>
@@ -14,6 +13,10 @@
 class camera
 {
 public:
+	pixbuf<double> buffer;
+	pixbuf<char8_t> out_buffer;
+	double(*post_proc_func)(double);
+
 	point3 camera_pos = point3(0, 0, 0);
 	vec3 camera_front = vec3(0, 0, -1);
 
@@ -29,7 +32,7 @@ public:
 	double get_width() { return img_width; }
 	double get_height() { return img_height; }
 
-	void render(const hitable& world, pixbuf<double> buffer)
+	void render(const hitable& world)
 	{
 		for (size_t samp = 0; samp < sample_count; samp++)
 		{
@@ -42,9 +45,11 @@ public:
 					color current_color = ray_color(scn_ray, world);
 
 					buffer.aggregate_color(current_color, sample_count);
+					out_buffer.pixel_process_from(buffer, post_proc_func);
 				}
 			}
 			buffer.reset();
+			out_buffer.reset();
 		}
 		std::clog << "\rDone                      " << std::endl;
 	}
@@ -66,6 +71,11 @@ public:
 
 		viewport_bottom_left = camera_pos + camera_front * foucus - viewport_u / 2 - viewport_v / 2;
 		pixel_start_pos = viewport_bottom_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+
+		buffer = pixbuf<double>(img_width, img_height, 3);
+		out_buffer = pixbuf<char8_t>(img_width, img_height, 3);
+		buffer.reset();
+		out_buffer.reset();
 	}
 
 private:
