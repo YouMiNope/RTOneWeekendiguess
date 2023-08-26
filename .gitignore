@@ -3,3 +3,4 @@ out
 .vscode
 build
 CMakePresets.json
+.DS_Store
