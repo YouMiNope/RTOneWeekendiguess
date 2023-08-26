@@ -20,12 +20,12 @@ public:
 
 	bool scatter(const ray& in_r, const hit_record& hit_rec, ray& out_r, color& attenuation) const override
 	{
-		vec3 diff_ray_dir = diffuse(-hit_rec.normal);
+		vec3<double> diff_ray_dir = diffuse(-hit_rec.normal);
 		auto in_ray_dir = norm(diff_ray_dir * fuzzrate + norm(in_r.direction()) * (1 - fuzzrate));
 		auto refract_factor = hit_rec.is_frontface ? 1 / ir : ir;
 
-		vec3 spec_ray_dir = reflect(in_ray_dir, hit_rec.normal);
-		vec3 ray_dir;
+		vec3<double> spec_ray_dir = reflect(in_ray_dir, hit_rec.normal);
+		vec3<double> ray_dir;
 
 		double cos_theta = fmin(dot(-in_ray_dir, hit_rec.normal), 1.0);
 		double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
@@ -36,7 +36,7 @@ public:
 		}
 		else
 		{
-			vec3 frac_ray_dir = refract(in_ray_dir, hit_rec.normal, refract_factor);
+			vec3<double> frac_ray_dir = refract(in_ray_dir, hit_rec.normal, refract_factor);
 			ray_dir = frac_ray_dir;
 		}
 		interval zero_near(0, 1e-6);

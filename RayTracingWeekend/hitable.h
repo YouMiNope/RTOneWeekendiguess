@@ -11,13 +11,13 @@ class hit_record
 {
 public:
 	point3 p;
-	vec3 normal;
+	vec3<double> normal;
 	double t;
 	bool is_frontface;
 
 	std::shared_ptr<material> material;
 
-	void set_frontface_and_normal(const ray& r, const vec3& norm)
+	void set_frontface_and_normal(const ray& r, const vec3<double>& norm)
 	{
 		is_frontface = dot(r.direction(), norm) < 0;
 		normal = is_frontface ? norm : -norm;
@@ -42,13 +42,11 @@ private:
 public:
 	hitable_list() {}
 
-	void add(hitable* hit_obj)
-	{
+	void add(hitable* hit_obj) {
 		m_list.push_back(hit_obj);
 	}
 
-	void clear()
-	{
+	void clear() {
 		m_list.clear();
 	}
 
@@ -74,15 +72,15 @@ public:
 class sphere : public hitable
 {
 private:
-	vec3 posit;
+	vec3<double> posit;
 	double radius;
 
 	std::shared_ptr<material> m_material;
 
 public:
-	sphere(const vec3& position, double radius, std::shared_ptr<material> matr) : posit(position), radius(radius), m_material(matr) {}
+	sphere(const vec3<double>& position, double radius, std::shared_ptr<material> matr) : posit(position), radius(radius), m_material(matr) {}
 
-	vec3 get_posit() const { return posit; }
+	vec3<double> get_posit() const { return posit; }
 	double get_radius() const { return radius; }
 
 	bool hit(const ray& r, interval range_t, hit_record& record) const override

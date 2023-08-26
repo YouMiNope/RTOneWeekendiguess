@@ -7,8 +7,6 @@ template <typename T>
 class pixbuf
 {
 public:
-	size_t buf_write_ptr;
-
 	pixbuf() {}
 	pixbuf(size_t width, size_t height, size_t channel)
 		: width(width),
@@ -17,52 +15,30 @@ public:
 		size(width * height * channel)
 	{
 		buf_begin_ptr = std::vector<T>(size, 0);
-		buf_write_ptr = 0;
-		clear();
 	}
 
-	~pixbuf() {
-		//free(buf_begin_ptr);
-	}
-
-	auto ptr() {
-		return &buf_begin_ptr[0];
+	auto ptr(size_t x, size_t y, size_t ch) {
+		return &buf_begin_ptr[(y * width + x) * 3 + ch];
 	}
 
 	void clear()
 	{
-		for (size_t i = 0; i < size; i++) {
-			buf_begin_ptr[i] = 0.;
-		}
+		buf_begin_ptr.clear();
 	}
 
-	void reset() {
-		buf_write_ptr = 0;
-	}
-
-	void aggregate_color(color _color, int sample_count)
+	void aggregate_color(color _color, size_t x, size_t y, int sample_count)
 	{
-		buf_begin_ptr[buf_write_ptr++] += _color[0] / sample_count;
-		buf_begin_ptr[buf_write_ptr++] += _color[1] / sample_count;
-		buf_begin_ptr[buf_write_ptr++] += _color[2] / sample_count;
-	}
-
-	template <typename d_T>
-	void render_to(pixbuf<typename d_T>& dest, double(process_func)(double))
-	{
-		//auto ceil = buf_write_ptr - buf_begin_ptr;
-		static interval pix_range(0, 256);
-		for (size_t i = 0; i < size; i++) {
-			dest.ptr()[i] = static_cast<d_T>(pix_range.clamp(process_func(buf_begin_ptr[i]) * 255));
-		}
+		*ptr(x, y, 0) += _color[0] / sample_count;
+		*ptr(x, y, 1) += _color[1] / sample_count;
+		*ptr(x, y, 2) += _color[2] / sample_count;
 	}
 
 	template <typename s_T>
-	void pixel_process_from(pixbuf<typename s_T>& src, double(process_func)(double))
+	void pixel_process_from(pixbuf<typename s_T>& src, size_t x, size_t y, double(process_func)(double))
 	{
-		buf_begin_ptr[buf_write_ptr++] = static_cast<T>(process_func(*(src.ptr() + src.buf_write_ptr - 3)) * 255);
-		buf_begin_ptr[buf_write_ptr++] = static_cast<T>(process_func(*(src.ptr() + src.buf_write_ptr - 2)) * 255);
-		buf_begin_ptr[buf_write_ptr++] = static_cast<T>(process_func(*(src.ptr() + src.buf_write_ptr - 1)) * 255);
+		*ptr(x, y, 0) = static_cast<T>(process_func(*src.ptr(x, y, 0)) * 255);
+		*ptr(x, y, 1) = static_cast<T>(process_func(*src.ptr(x, y, 1)) * 255);
+		*ptr(x, y, 2) = static_cast<T>(process_func(*src.ptr(x, y, 2)) * 255);
 	}
 
 private:

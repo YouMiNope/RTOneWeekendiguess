@@ -16,12 +16,18 @@ file (GLOB IMGUI_FILES
 
 add_executable (main 
 	${MAIN_SOURCE} 
+)
+
+add_library(imgui
 	${IMGUI_FILES}
 )
 
-target_include_directories(main PRIVATE "${INCLUDE_DIR}")
+target_link_libraries (main imgui)
+
 target_link_directories(main PRIVATE "${LIBRARY_DIR}")
-target_include_directories(main PRIVATE 
+target_include_directories(main PRIVATE "${INCLUDE_DIR}")
+target_include_directories(imgui PUBLIC 
+	"${INCLUDE_DIR}"
 	"${PROJECT_SOURCE_DIR}/imgui"
 	"${PROJECT_SOURCE_DIR}/imgui/backends"
 )
