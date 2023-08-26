@@ -1,6 +1,4 @@
-﻿# 将源代码添加到此项目的可执行文件。
-
-file(GLOB MAIN_SOURCE 
+﻿file(GLOB MAIN_SOURCE 
 	"${PROJECT_SOURCE_DIR}/RayTracingWeekend/*.cpp" 
 	"${PROJECT_SOURCE_DIR}/RayTracingWeekend/*.h"
 )

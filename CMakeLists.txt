@@ -1,7 +1,4 @@
-﻿# CMakeList.txt: 顶层 CMake 项目文件，在此处执行全局配置
-# 并包含子项目。
-#
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.8)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -11,9 +8,7 @@ endif()
 
 project ("RayTracingWeekend")
 
-# 包含子项目。
 add_subdirectory ("RayTracingWeekend")
-# message("${PROJECT_SOURCE_DIR}/imgui")
 
 set(INCLUDE_DIR "$ENV{INCLUDE_DIR}" CACHE PATH "Custom Include Directory")
 set(LIBRARY_DIR "$ENV{LIBRARY_DIR}" CACHE PATH "Custom Library Directory")
